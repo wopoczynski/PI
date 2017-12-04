@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# matlab temp
+*.asv
+
+# obrazy
+*.png
+*.bmp
+*.jpeg
+*.jpg
