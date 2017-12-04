@@ -32,7 +32,8 @@
 *.app
 
 # matlab temp
-*.asv
+*.fig
+
 
 # obrazy
 *.png
