@@ -3,7 +3,7 @@
 % na wiele w¹tków (parfor)
 % 
 % w.opoczynski 2017
-% segmentedImage = localizedSegParallel(param,threheads)
+% segmentedImage = localizedSegParallel(params)
 %
 % @param object parameters {
 %  array image
@@ -24,7 +24,7 @@
 
 
 %%
-function segmentedImage = localizedSegParallel(parameters,threheads)
+function segmentedImage = localizedSegParallel(parameters)
 	
 		image = parameters.image; 
 		initMask = parameters.initMask;
@@ -32,7 +32,7 @@ function segmentedImage = localizedSegParallel(parameters,threheads)
         radius = parameters.radius;
         smooth = parameters.smooth;
         display = parameters.display;		
-
+        threheads = parameters.threheads;		
 	% default values
 	image = im2graydouble(image);  
 	[dimY dimX] = size(image);
