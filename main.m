@@ -10,7 +10,7 @@ image = imread('airplane.jpg');
 
 % create mask 
 mask = false(size(image,1),size(image,2));
-mask(50:250, 50:250) = true;
+mask(70:250, 80:250) = true;
 %% for large images rescale
 % image = imresize(image,.5);
 % mask = imresize(mask,.5);  
@@ -21,7 +21,7 @@ subplot(2,2,2); imshow(mask); title('Maska');
 subplot(2,2,3); title('Segmentacja');
 
 %% params 
-iterations = 600;
+iterations = 1000;
 radius = 50;
 smooth = 0.2;
 display = true;
