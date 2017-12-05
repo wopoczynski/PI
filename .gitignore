@@ -46,3 +46,4 @@
 *.bmp
 *.jpeg
 *.jpg
+/other/*
