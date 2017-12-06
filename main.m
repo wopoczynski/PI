@@ -28,9 +28,11 @@ dispIteration = 10;
 parameters = struct('image',image,'initMask',mask,'maxIterations',iterations,...
                     'radius', radius,'smooth', smooth,'display', display,...
                     'dispIteration',dispIteration,'threads', threads);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% main %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% main
-% % 1thread
+%% no parallel
 figure(1);
 subplot(2,2,1);
 imshow(image);
@@ -47,7 +49,7 @@ subplot(2,2,4);
 imshow(result);
 title('Segmentacja CPU');
 
-% % multi threads
+%% multi threads
 figure(2);
 subplot(2,2,1);
 imshow(image);
@@ -66,7 +68,7 @@ title('Wynik CPU multithread.');
 
 
 
-% % GPU
+%% GPU
 figure(3);
 subplot(2,2,1);
 imshow(image);
