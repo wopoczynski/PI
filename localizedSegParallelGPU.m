@@ -25,64 +25,84 @@
 %%
 function segmentedImage = localizedSegParallelGPU(parameters)
 	
-		image = parameters.image; 
-		initMask = parameters.initMask;
-		maxIterations = parameters.maxIterations;
-        radius = parameters.radius;
-        smooth = parameters.smooth;
-        display = parameters.display;		
 
-	% default values
-	image = im2graydouble(image);  
-	[dimY, dimX] = size(image);
-    imageGPU = gpuArray(image);
-	if(~exist('radius','var')) 
+    if(~isfield(parameters,'display'))
+		display = true;
+    else
+        display = parameters.display;
+    end
+    
+	if(~isfield(parameters,'dispIteration')) 
+		dispIteration = 20; 
+    else
+        dispIteration = parameters.dispIteration;
+    end
+    
+    if (~isfield(parameters,'image'))
+        error('No image passed to function!');
+    else
+        image = gpuArray(parameters.image);
+        image = im2graydouble(image);  
+        [dimY, dimX] = size(image);
+    end
+    
+    if (~isfield(parameters,'initMask'))
+        error('No mask passed to function!');
+    else
+        initMask = parameters.initMask;
+        mask = gpuArray(mask2phi(initMask));
+    end
+    
+ 	if(~isfield(parameters,'radius'))
 		radius = round((dimY+dimX)/(2*8)); 
 		if(display>0) 
 			disp(['radius = ' num2str(radius) ' px']); 
 		end
-	end
-	if(~exist('threheads','var')) 
-        threheads = 1;
-    end
-	if(~exist('maxIterations','var')) 
-		maxIterations = 200; 
-	end
-	if(~exist('smooth','var'))
-		smooth = .1; 
-	end
-	if(~exist('display','var'))
-		display = true;
-    end
+    else
+        radius = parameters.radius;    
+    end   
 
-    % tworzy signed distance map (SDF)
-	phi = mask2phi(initMask);
-    phiGPU = gpuArray(phi);
-	% ilosc iteracji 
+    if(~isfield(parameters,'maxIterations')) 
+		maxIterations = 200; 
+    else
+        maxIterations = parameters.maxIterations;
+    end
+    
+	if(~isfield(parameters,'smooth'))
+		smooth = .1; 
+    else
+        smooth = parameters.smooth;
+    end
+    
+
+    
+	% kryterium stop
     licznik = 0;
 	while (licznik <= maxIterations)
 
 		% pobiera punkty z krzywej
-		idx = find(phiGPU <= 1.2 & phiGPU >= -1.2)';	
-		[y x] = ind2sub(size(phiGPU),idx);
+		idx = find(mask <= 1.2 & mask >= -1.2)';	
+		[y, x] = ind2sub(size(mask),idx);
 		
 		% okno przesuwne dla lokalnych pochodnych i sprawdzenie wymiarow
 		xNeg = x-radius;
         xPos = x+radius;
 		yNeg = y-radius;
         yPos = y+radius;
-		xNeg(xNeg<1)=1;
-        yNeg(yNeg<1)=1;
-		xPos(xPos>dimX)=dimX;
-        yPos(yPos>dimY)=dimY;
+		xNeg(xNeg<1) = 1;
+        yNeg(yNeg<1) = 1;
+		xPos(xPos>dimX) = dimX;
+        yPos(yPos>dimY) = dimY;
 
 		% re-inicjalizacja u,v,aIn,aOut
-		u=zeros(size(idx)); v=zeros(size(idx)); 
-		aIn=zeros(size(idx)); aOut=zeros(size(idx)); 
+		u = zeros(size(idx));
+        v = zeros(size(idx)); 
+		aIn = zeros(size(idx));
+        aOut = zeros(size(idx)); 
 		
 		% obliczanie lokalnych pochodnych na GPU NIE potrzeba parfora
-			imageTemp = imageGPU(yNeg:yPos,xNeg:xPos); %sub i
-			P = phiGPU(yNeg:yPos,xNeg:xPos); %sub phi
+			imageTemp = image(yNeg:yPos,xNeg:xPos); %sub i
+			P = mask(yNeg:yPos,xNeg:xPos); %sub mask
 
 			localMin = find(P<=0);
 			aIn = length(localMin)+eps;
@@ -93,97 +113,102 @@ function segmentedImage = localizedSegParallelGPU(parameters)
 			v = sum(imageTemp(localMax))/aOut;
  
 		% F obrazu
-		F = -(u-v).*(2.*imageGPU(idx)-u-v);
+		F = -(u-v).*(2.*image(idx)-u-v);
 		% F z krzywej
-		curvature = getCurvature(phiGPU,idx,x,y);	
+		curvature = getCurvature(mask,idx,x,y);	
 		% gradient spada minimalizujac energie
 		dphidt = F./max(abs(F)) + smooth*curvature;	
 		% utrzymuje równanie Courant–Friedrichs–Lewy 
 		dt = .45/(max(dphidt)+eps);
 		% zmiana krzywej na obrazie
-		phiGPU(idx) = phiGPU(idx) + dt.*dphidt;
+		mask(idx) = mask(idx) + dt.*dphidt;
 		% utrzymuje SDF wyg³adzone
-		phiGPU = sussman(phiGPU, .5);
-		% co 20 iteracji print postepu
-		if((display>0)&&(mod(licznik,20) == 0)) 
-			showCurveAndPhi(imageGPU,phiGPU,licznik);	
+		mask = sussman(mask, .5);
+		%% 
+		if((display>0)&&(mod(licznik,dispIteration) == 0)) 
+			showCurveAndPhi(image,mask,licznik);	
         end
         licznik = licznik+1;
 	end
 	
 	% result print
 	if(display)
-		showCurveAndPhi(imageGPU,phiGPU,licznik);
+		showCurveAndPhi(image,mask,licznik);
 	end
 	
-	segmentedImage = phiGPU<=0;
+	segmentedImage = mask <= 0;
 
 
-%% dodatkowe funkcje
+%% dodatkowe funkcje %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%=========================================================================
+%=========================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% wyswietlanie wynikow
-function showCurveAndPhi(I, phiGPU, i)
+% disp results
+function showCurveAndPhi(I, mask, i)
 	imshow(I,'displayrange',[0 255]);
     hold on;
-	contour(phiGPU, [0 0], 'g','LineWidth',4);
-	contour(phiGPU, [0 0], 'k','LineWidth',2);
+	contour(mask, [0 0], 'g','LineWidth',4);
+	contour(mask, [0 0], 'k','LineWidth',2);
 	hold off; title([num2str(i) ' Iterations']);
     drawnow;
 	
-% zamiana z mask na SDF ( Signed distance Function)
-function phi = mask2phi(init_a)
-	phi=bwdist(init_a)-bwdist(1-init_a)+im2double(init_a)-.5;
-	
-% obliczanie ksztaltu krawedzi
-function curvature = getCurvature(phi,idx,x,y)
-		[dimY, dimX] = size(phi);				
+% SDF ( Signed distance Function) tworzy signed distance map (SDF)
 
-		% 4 s¹siedztwo
+function mask = mask2phi(init_a)
+	mask = bwdist(init_a) - bwdist(1-init_a) + im2double(init_a) - .5;
+	
+% calc curve 
+function curvature = getCurvature(mask,idx,x,y)
+		[dimY, dimX] = size(mask);				
+
+		% 4 neighbourhood
 		ym1 = y-1;
         xm1 = x-1;
         yp1 = y+1;
         xp1 = x+1;
 
-		% granice	
+		% borders	
 		ym1(ym1<1) = 1;
         xm1(xm1<1) = 1;							
 		yp1(yp1>dimY)=dimY;
         xp1(xp1>dimX) = dimX;		
 
-		% indexy 8 sasiedztwa
-		idUp = sub2ind(size(phi),yp1,x);		
-		iddn = sub2ind(size(phi),ym1,x);
-		idlt = sub2ind(size(phi),y,xm1);
-		idrt = sub2ind(size(phi),y,xp1);
-		idul = sub2ind(size(phi),yp1,xm1);
-		idur = sub2ind(size(phi),yp1,xp1);
-		iddl = sub2ind(size(phi),ym1,xm1);
-		iddr = sub2ind(size(phi),ym1,xp1);
+		% indexy 8 neighbourhood
+		idUp = sub2ind(size(mask),yp1,x);		
+		iddn = sub2ind(size(mask),ym1,x);
+		idlt = sub2ind(size(mask),y,xm1);
+		idrt = sub2ind(size(mask),y,xp1);
+		idul = sub2ind(size(mask),yp1,xm1);
+		idur = sub2ind(size(mask),yp1,xp1);
+		iddl = sub2ind(size(mask),ym1,xm1);
+		iddr = sub2ind(size(mask),ym1,xp1);
 		
-		% pochodne dla srodka SDF w x,y
-		phi_x	= -phi(idlt)+phi(idrt);
-		phi_y	= -phi(iddn)+phi(idUp);
-		phi_xx = phi(idlt)-2*phi(idx)+phi(idrt);
-		phi_yy = phi(iddn)-2*phi(idx)+phi(idUp);
-		phi_xy = -0.25*phi(iddl)-0.25*phi(idur)...
-						 +0.25*phi(iddr)+0.25*phi(idul);
+		% deriv. for center of SDF at x,y
+		phi_x	= -mask(idlt)+mask(idrt);
+		phi_y	= -mask(iddn)+mask(idUp);
+		phi_xx = mask(idlt)-2*mask(idx)+mask(idrt);
+		phi_yy = mask(iddn)-2*mask(idx)+mask(idUp);
+		phi_xy = -0.25*mask(iddl)-0.25*mask(idur)...
+						 +0.25*mask(iddr)+0.25*mask(idul);
 		phi_x2 = phi_x.^2;
 		phi_y2 = phi_y.^2;
 		
-		% kalkulacja krzywej
+		% curve calc
 		curvature = ((phi_x2.*phi_yy + phi_y2.*phi_xx - 2*phi_x.*phi_y.*phi_xy)./...
 							(phi_x2 + phi_y2 +eps).^(3/2)).*(phi_x2 + phi_y2).^(1/2);				
 	
-% zamiana image na grayscale double
+% color to grayscale
 function imageTemp = im2graydouble(imageTemp)		
-	[dimY, dimX, c] = size(imageTemp);
+	[~, ~, c] = size(imageTemp);
      if (c == 3)
         if(isfloat(imageTemp))
-            if(c==3) 
+            if(c == 3) 
                 imageTemp = rgb2gray(uint8(imageTemp)); 
             end
         else
-            if(c==3) 
+            if(c == 3) 
                 imageTemp = rgb2gray(imageTemp); 
             end
             imageTemp = double(imageTemp);
@@ -193,7 +218,7 @@ function imageTemp = im2graydouble(imageTemp)
      end
 % level set re-initialization by the sussman method
 % https://www.mathworks.com/matlabcentral/fileexchange/26101-active-contours--a-new-distribution-metric-for-image-segmentation?focused=5140125&tab=function
-%
+% @author Romeil Sandhu
 function D = sussman(D, dt)
 	% forward/backward differences
 	a = D - shiftR(D); % backward
@@ -229,7 +254,7 @@ function D = sussman(D, dt)
 	
 	D = D - dt .* sussmanSign(D) .* dD;
 
-% obliczanie pochodnych inwersje
+% transpose matrix and inverse for deriv. calc.
 function shift = shiftD(M)
 	shift = shiftR(M')';
 

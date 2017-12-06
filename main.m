@@ -7,38 +7,29 @@ cd 'C:\Users\Wojtek\source\repos\PI';
 clear; clc; close all;
 
 image = imread('airplane.jpg');
-
+% image = imread('plane.jpeg'); //2nd pic much bigger
 % create mask 
- % jak sie da za duza maske to leci w kosmos na gpu
 mask = false(size(image,1),size(image,2));
-mask(140:220, 140:220) = true;
-%% for large images rescale
+mask(140:220, 140:220) = true; %small one
+% mask(20:250,30:250) = true; %big one
+
+%% rescale
 % image = imresize(image,.5);
 % mask = imresize(mask,.5);  
 
-%%
-subplot(2,2,1); imshow(image); title('Input');
-subplot(2,2,2); imshow(mask); title('Maska');
-subplot(2,2,3); title('Segmentacja');
-
 %% params 
 iterations = 600;
-radius = 50;
-smooth = 0.2;
+radius = 150;
+smooth = 0.1;
 display = true;
-threheads = 4;
+threads = 4;
+dispIteration = 10;
 parameters = struct('image',image,'initMask',mask,'maxIterations',...
     iterations,'radius', radius,'smooth', smooth,'display', display,...
-   'threheads', threheads);
+   'dispIteration',dispIteration,'threads', threads);
 
-
-result = localizedSeg(parameters);
-resultCPU = localizedSegParallel(parameters);  
-resultGPU = localizedSegParallelGPU(parameters);
-imageOutGpu = gather(resultGPU);
-clear resultGPU;
-
-%% wyniki
+%% main
+% % 1thread
 figure(1);
 subplot(2,2,1);
 imshow(image);
@@ -47,11 +38,15 @@ subplot(2,2,2);
 imshow(mask);
 title('Maska');
 subplot(2,2,3);
-title('Segmentacja');
+('segmentacja live');
+tic
+result = localizedSeg(parameters);
+toc
 subplot(2,2,4);
 imshow(result);
-title('Wynik CPU');
+title('Segmentacja CPU');
 
+% % multi threads
 figure(2);
 subplot(2,2,1);
 imshow(image);
@@ -60,11 +55,17 @@ subplot(2,2,2);
 imshow(mask);
 title('Maska');
 subplot(2,2,3);
-title('Segmentacja');
+title('Segmentacja live');
+tic
+resultCPU = localizedSegParallel(parameters);  
+toc
 subplot(2,2,4);
 imshow(resultCPU);
 title('Wynik CPU multithread.');
 
+
+
+% % GPU
 figure(3);
 subplot(2,2,1);
 imshow(image);
@@ -73,7 +74,12 @@ subplot(2,2,2);
 imshow(mask);
 title('Maska');
 subplot(2,2,3);
-title('Segmentacja');
+title('Segmentacja live');
+tic
+resultGPU = localizedSegParallelGPU(parameters);
+timeGPU = toc;
+imageOutGpu = gather(resultGPU);
+clear resultGPU;
 subplot(2,2,4); imshow(imageOutGpu);
 title('Wynik GPU');
 
