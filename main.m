@@ -1,11 +1,12 @@
+%use if needed to clean workspace
+clear; clc; close all;
+
 %% ACTIVE CONTOUR SEGMENTATION
 % w.opoczynski 2017r 
 % main script
 
-%folder 
+% folder 
 cd 'C:\Users\Wojtek\source\repos\PI';
-clear; clc; close all;
-
 image = imread('airplane.jpg');
 % image = imread('plane.jpeg'); //2nd pic much bigger
 % create mask 
@@ -24,9 +25,9 @@ smooth = 0.1;
 display = true;
 threads = 4;
 dispIteration = 10;
-parameters = struct('image',image,'initMask',mask,'maxIterations',...
-    iterations,'radius', radius,'smooth', smooth,'display', display,...
-   'dispIteration',dispIteration,'threads', threads);
+parameters = struct('image',image,'initMask',mask,'maxIterations',iterations,...
+                    'radius', radius,'smooth', smooth,'display', display,...
+                    'dispIteration',dispIteration,'threads', threads);
 
 %% main
 % % 1thread

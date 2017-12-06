@@ -1,27 +1,22 @@
 %% SNAKE SEGMENTATION W/O EDGES
-% Implementacja algorytmu segmentacji aktywnego konturu aka. snake
-% na GPU 
-% w.opoczynski 2017
-% segmentedImage = localizedSegParallelGPU(param)
+% W.Opoczynski 2017-12
+% Implementacja algorytmu segmentacji aktywnego konturu "snake"
+% na GPU przy uzyciu parallel computing toolbox
+% 
+% segmentedImage = localizedSegParallelGPU(parameters)
 %
 % @param object parameters {
 %  array image
 %  array initMask
 % OPTIONAL parameters
-%  int maxIterations default 200
+%  int maxIterations default 300
 %  int radius default (x+y)/(2*8)
 %  float smooth default 0.1
-%  boolean display def. true
+%  boolean display default true
+%  boolean dispIterations default true
+%  int threads default 1 
 %  }
-% @result array segmentedImage 
-%
-% 
-% initMask binarny obraz zawierajacy figure, z ktorej pobierany jest kontur
-% radius promieñ do wykrywania zmian lokalnych im wiêkszy tym bardziej globalny 
-% smooth odpowiada za wyg³adzenie krawêdzi
-% display flaga czy ma pokazywac wyniki
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 function segmentedImage = localizedSegParallelGPU(parameters)
 	
