@@ -41,10 +41,5 @@
 *.slx -crlf -diff -merge
 *.mdl -crlf -diff -merge
 *.asv
-# obrazy
-*.png
-*.bmp
-*.jpeg
-*.jpg
 *.mat
 /other/*
