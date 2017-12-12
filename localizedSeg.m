@@ -101,7 +101,7 @@ function segmentedImage = localizedSeg(parameters)
 			
 			localMax = find(P>0);
 			aOut(i) = length(localMax)+eps;
-			v(i) = sum(imageTemp(localMax))/aOut(i);
+			v(i) = sum(imageTemp(localMax))/aOut(i); %% to trwa najdluzej 
 		end	 
  
 		% F obrazu
