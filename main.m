@@ -1,24 +1,11 @@
-%use if needed to clean workspace
-%clear; clc; close all;
-%
-% ACTIVE CONTOUR SEGMENTATION
-% w.opoczynski 2017r 
-%% main script
+%% result comparsion on plots live
 
-% folder 
 cd 'C:\Users\Wojtek\source\repos\PI';
 image = imread('airplane.jpg');
-% image = imread('plane.jpeg'); %//2nd pic much bigger
-% create mask 
 mask = false(size(image,1),size(image,2));
 mask(140:220, 140:220) = true; %small one
 % mask(20:250,30:250) = true; %big one
 
-%% rescale
-% image = imresize(image,.5);
-% mask = imresize(mask,.5);  
-
-%% params 
 iterations = 400;
 radius = 100;
 smooth = 0.2;
@@ -28,10 +15,6 @@ dispIteration = 10;
 parameters = struct('image',image,'initMask',mask,'maxIterations',iterations,...
                     'radius', radius,'smooth', smooth,'display', display,...
                     'dispIteration',dispIteration,'threads', threads);
-                
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%% main %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% %%%%%% normal size %%%%%%%%%%%%%%%%
 % single thread

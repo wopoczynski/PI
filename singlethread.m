@@ -82,7 +82,20 @@ y = [timeCPU01 timeCPU025 timeCPU05 timeCPU075 timeCPU1 timeCPU15 timeCPU2 timeC
 figure(1);
 plot(x,y);
 xlabel('size');
-ylabel('time');
+ylabel('time [s]');
 title('processing time 1 thread');
 
+save('timingCore');
+
 disp('done');
+toc
+
+
+imshow(result01);
+imshow(result025);
+imshow(result05);
+imshow(result075);
+imshow(result1);
+imshow(result15);
+imshow(result2);
+imshow(result4);
