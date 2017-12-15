@@ -1,6 +1,4 @@
-
 % cd 'C:\Users\Wojtek\source\repos\PI';
-
 
 image = imread('airplane.jpg');
 mask = false(size(image,1),size(image,2));

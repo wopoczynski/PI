@@ -1,6 +1,7 @@
-% multithread
+%%%% multithread
 
 image = imread('airplane.jpg');
+
 mask = false(size(image,1),size(image,2));
 mask(140:220, 140:220) = true;
 

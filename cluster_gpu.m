@@ -1,6 +1,9 @@
+%%%% GPU COMPUTING
 image = imread('airplane.jpg');
+
 mask = false(size(image,1),size(image,2));
 mask(140:220, 140:220) = true; 
+
 iterations = 600; %iteracje
 display = false; % T/F czy ma wyœwietlaæ przebieg
 
