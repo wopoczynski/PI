@@ -1,6 +1,7 @@
-%% result comparsion on plots live
 
-cd 'C:\Users\Wojtek\source\repos\PI';
+% cd 'C:\Users\Wojtek\source\repos\PI';
+
+
 image = imread('airplane.jpg');
 mask = false(size(image,1),size(image,2));
 mask(140:220, 140:220) = true; %small one
@@ -68,7 +69,6 @@ imageOutGpu = gather(resultGPU);
 clear resultGPU;
 subplot(2,2,4); imshow(imageOutGpu);
 title('Wynik GPU');
-
 %% %%%%%% 0.1 size %%%%%%%%%%%%%%%%
 
 image = imread('airplane.jpg');
@@ -137,7 +137,6 @@ imageOutGpu01 = gather(resultGPU01);
 clear resultGPU;
 subplot(2,2,4); imshow(imageOutGpu01);
 title('Wynik GPU');
-
 %% %%%%%% 0.2 size %%%%%%%%%%%%%%%%
 
 image = imread('airplane.jpg');
@@ -208,7 +207,6 @@ imageOutGpu02 = gather(resultGPU02);
 clear resultGPU;
 subplot(2,2,4); imshow(imageOutGpu02);
 title('Wynik GPU');
-
 %% %%%%%% 0.5 size %%%%%%%%%%%%%%%%
 
 image = imread('airplane.jpg');
@@ -347,7 +345,6 @@ imageOutGpu15 = gather(resultGPU15);
 clear resultGPU;
 subplot(2,2,4); imshow(imageOutGpu15);
 title('Wynik GPU');
-
 %% %%%%%% 2.0 size %%%%%%%%%%%%%%%%
 image = imread('airplane.jpg');
 % image = imread('plane.jpeg'); %//2nd pic much bigger
