@@ -30,3 +30,6 @@ parameters = struct('image',imageTmp,'initMask',maskTmp,'display', display,'maxI
 tic;
 result = localizedSegParallel(parameters);
 timeCPU = toc;
+
+
+save('gpuVScpu');
