@@ -20,7 +20,6 @@ for i = 1:numel(resizeVal)
     resultCpu{i} = localizedSeg(parameters);
     timesCpu(i) = toc;
     disp(['done ' num2str(resizeVal(i))]);
-   if (i==3) break; end; 
 end
 
 save('resultCPUSingleSizes');
