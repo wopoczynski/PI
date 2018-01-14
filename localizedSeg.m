@@ -140,11 +140,11 @@ function segmentedImage = localizedSeg(parameters)
 % disp results
 function showCurveAndPhi(I, mask, i)
 	imshow(I,'displayrange',[0 255]);
-	hold on;
-	contour(mask, [0 0], 'g','LineWidth',4);
-	contour(mask, [0 0], 'k','LineWidth',2);
-	hold off; title([num2str(i) ' Iterations']);
-	drawnow;
+    hold on;
+	contour(mask, [0 0], 'y','LineWidth',4);
+	contour(mask, [0 0], 'r','LineWidth',2);
+	hold off; title([num2str(i) ' Iteracji']);
+    drawnow;
 	
 % SDF ( Signed distance Function) tworzy signed distance map (SDF)
 

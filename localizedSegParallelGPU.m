@@ -121,7 +121,7 @@ function segmentedImage = localizedSegParallelGPU(parameters)
 		mask = sussman(mask, .5);
 		%% 
 		if((display>0)&&(mod(licznik,dispIteration) == 0)) 
-			showCurveAndPhi(image,mask,licznik);	
+			showCurveAndPhi(image,mask,licznik);
         end
         licznik = licznik+1;
 	end
@@ -144,13 +144,12 @@ function segmentedImage = localizedSegParallelGPU(parameters)
 function showCurveAndPhi(I, mask, i)
 	imshow(I,'displayrange',[0 255]);
     hold on;
-	contour(mask, [0 0], 'g','LineWidth',4);
-	contour(mask, [0 0], 'k','LineWidth',2);
-	hold off; title([num2str(i) ' Iterations']);
+	contour(mask, [0 0], 'y','LineWidth',4);
+	contour(mask, [0 0], 'r','LineWidth',2);
+	hold off; title([num2str(i) ' Iteracji']);
     drawnow;
-	
+    
 % SDF ( Signed distance Function) tworzy signed distance map (SDF)
-
 function mask = mask2phi(init_a)
 	mask = bwdist(init_a) - bwdist(1-init_a) + im2double(init_a) - .5;
 	
@@ -186,7 +185,7 @@ function curvature = getCurvature(mask,idx,x,y)
 		phi_xx = mask(idlt)-2*mask(idx)+mask(idrt);
 		phi_yy = mask(iddn)-2*mask(idx)+mask(idUp);
 		phi_xy = -0.25*mask(iddl)-0.25*mask(idur)...
-						 +0.25*mask(iddr)+0.25*mask(idul);
+				 +0.25*mask(iddr)+0.25*mask(idul);
 		phi_x2 = phi_x.^2;
 		phi_y2 = phi_y.^2;
 		
