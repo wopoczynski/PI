@@ -91,7 +91,7 @@ function segmentedImage = localizedSeg(parameters)
 		aIn=zeros(size(idx)); aOut=zeros(size(idx)); 
 		
 		% obliczanie lokalnych pochodnych
-		for i = 1:numel(idx) %tu zrównoleglic?
+		for i = 1:numel(idx) 
 			imageTemp = image(yNeg(i):yPos(i),xNeg(i):xPos(i)); %sub i
 			P = mask(yNeg(i):yPos(i),xNeg(i):xPos(i)); %sub mask
 
@@ -101,7 +101,7 @@ function segmentedImage = localizedSeg(parameters)
 			
 			localMax = find(P>0);
 			aOut(i) = length(localMax)+eps;
-			v(i) = sum(imageTemp(localMax))/aOut(i); %% to trwa najdluzej 
+			v(i) = sum(imageTemp(localMax))/aOut(i); 
 		end	 
  
 		% F obrazu
@@ -110,11 +110,11 @@ function segmentedImage = localizedSeg(parameters)
 		curvature = getCurvature(mask,idx,x,y);	
 		% gradient spada minimalizujac energie
 		dphidt = F./max(abs(F)) + smooth*curvature;	
-		% utrzymuje równanie Courant–Friedrichs–Lewy 
+		% utrzymuje rÃ³wnanie Courantâ€“Friedrichsâ€“Lewy 
 		dt = .45/(max(dphidt)+eps);
 		% zmiana krzywej na obrazie
 		mask(idx) = mask(idx) + dt.*dphidt;
-		% utrzymuje SDF wyg³adzone
+		% utrzymuje SDF wygÂ³adzone
 		mask = sussman(mask, .5);
 		%% 
 		if((display>0)&&(mod(licznik,dispIteration) == 0)) 
