@@ -1,7 +1,7 @@
 %% SNAKE SEGMENTATION W/O EDGES
 % W.Opoczynski 2017-12
 % Implementacja algorytmu segmentacji aktywnego konturu "snake"
-% na wiele w¹tków przy u¿yciu parfor'a z parallel computing toolboxa
+% na wiele wÂ¹tkÃ³w przy uÂ¿yciu parfor'a z parallel computing toolboxa
 % 
 % segmentedImage = localizedSegParallel(parameters)
 %
@@ -99,7 +99,7 @@ function segmentedImage = localizedSegParallel(parameters)
 		aIn=zeros(size(idx)); aOut=zeros(size(idx)); 
 		
 		% obliczanie lokalnych pochodnych
-		parfor (i = 1:numel(idx),threads) %tu zrównoleglic?
+		parfor (i = 1:numel(idx),threads)
 			imageTemp = image(yNeg(i):yPos(i),xNeg(i):xPos(i)); %sub i
 			P = mask(yNeg(i):yPos(i),xNeg(i):xPos(i)); %sub mask
 
@@ -118,11 +118,11 @@ function segmentedImage = localizedSegParallel(parameters)
 		curvature = getCurvature(mask,idx,x,y);	
 		% gradient spada minimalizujac energie
 		dphidt = F./max(abs(F)) + smooth*curvature;	
-		% utrzymuje równanie Courant–Friedrichs–Lewy 
+		% utrzymuje rÃ³wnanie Courantâ€“Friedrichsâ€“Lewy 
 		dt = .45/(max(dphidt)+eps);
 		% zmiana krzywej na obrazie
 		mask(idx) = mask(idx) + dt.*dphidt;
-		% utrzymuje SDF wyg³adzone
+		% utrzymuje SDF wygÂ³adzone
 		mask = sussman(mask, .5);
 		%% 
 		if((display>0)&&(mod(licznik,dispIteration) == 0)) 
